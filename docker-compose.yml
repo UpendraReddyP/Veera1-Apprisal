@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres5
+    environment:
+      POSTGRES_DB: hr_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5074:5432"
+    networks:
+      - apprisal-net
+
+  backend:
+    build: ./Backend
+    container_name: Backend5
+    ports:
+      - "3074:3074"
+    depends_on:
+      - postgres
+    networks:
+      - apprisal-net
+
+  frontend:
+    build: ./Frontend
+    container_name: Frontend5
+    ports:
+      - "8134:80"
+    depends_on:
+      - backend
+    networks:
+      - apprisal-net
+
+  hr:
+    build: ./HR
+    container_name: HR5
+    ports:
+      - "8135:80"
+    depends_on:
+      - backend
+    networks:
+      - apprisal-net
+
+volumes:
+  pgdata:
+
+networks:
+  apprisal-net:
+    driver: bridge
+
